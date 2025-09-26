@@ -69,6 +69,11 @@ apiClient.interceptors.response.use(
 
       // 处理权限错误
       if (error.response?.status === 403) {
+        // 检查是否为 Cloudflare 质询
+        const cfMitigated = error.response.headers['cf-mitigated'];
+        if (cfMitigated === 'challenge') {
+          return Promise.reject(new Error('遇到 CF 质询，请刷新页面'));
+        }
         return Promise.reject(new Error('权限不足'));
       }
 
